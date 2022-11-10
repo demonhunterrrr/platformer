@@ -21,26 +21,40 @@ def main():
     ]  # list of platforms
 
     # creating player
-    player = Player(400,300,background)
+    player = Player(400,585,background)
 
     # blitting everything to screen
     screen.blit(background,(0,0))
     pygame.display.update()
 
     # game loop
+    on_ground = True
+    jumping = False
+    clock = pygame.time.Clock()
     while True:
-        pygame.time.delay(10)
+        clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # listening for quit events
                 return
         
+        starting_coords = player.coords
+
         # listening for key presses
         keys = pygame.key.get_pressed()
         if keys[K_a]: player.coords = player.move(-5, 0)
         if keys[K_d]: player.coords = player.move(5, 0)
-        if keys[K_w]: player.coords = player.move(0, -10)
+        if keys[K_w] and on_ground:
+            jumping = True
 
-        player.coords = player.move(0, 5    ) # gravity
+        if jumping:
+            player.coords = player.jump()
+
+        on_ground = starting_coords[1] == player.coords[1] and abs(player.jump_vel) > 1
+
+        if on_ground:
+            jumping = False
+            player.jump_vel = 15
+
         screen.blit(background, (0,0))
         pygame.display.update()
 
